@@ -3,51 +3,397 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Hello World</title>
+    <title>Hardcore 5e Sheet</title>
     <style>
       :root {
         color-scheme: dark;
-        font-family: system-ui, -apple-system, sans-serif;
+        --bg: #16151a;
+        --panel: #201f27;
+        --panel-2: #2a2933;
+        --line: #3a3947;
+        --text: #ece9f1;
+        --muted: #9b97a8;
+        --gold: #d9b25f;
+        --red: #e0453c;
+        --green: #54b46a;
+        --blue: #4a90d9;
+        --radius: 10px;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
       }
+
+      * { box-sizing: border-box; }
+
       body {
         margin: 0;
-        padding: 16px;
+        padding: 12px;
+        background: var(--bg);
+        color: var(--text);
+        font-size: 13px;
+        overflow-y: auto;
+      }
+
+      h2, h3 { margin: 0; font-weight: 600; }
+
+      /* --- "select a token" empty state --- */
+      #empty {
         display: flex;
         flex-direction: column;
-        gap: 10px;
-        align-items: stretch;
+        align-items: center;
         justify-content: center;
-        background: transparent;
-        color: #f0f0f0;
+        gap: 8px;
+        text-align: center;
+        color: var(--muted);
+        min-height: 360px;
+        padding: 24px;
+      }
+      #empty .big { font-size: 40px; opacity: 0.7; }
+      #empty.hidden, #sheet.hidden { display: none; }
+
+      /* --- header --- */
+      header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+      }
+      #token-name {
+        font-size: 16px;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+        flex: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      #status-pill {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        padding: 4px 9px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+      }
+      .st-alive  { color: var(--green); border-color: var(--green); }
+      .st-dying  { color: var(--gold);  border-color: var(--gold); background: rgba(217,178,95,0.08); }
+      .st-stable { color: var(--blue);  border-color: var(--blue); }
+      .st-dead   { color: var(--red);   border-color: var(--red); background: rgba(224,69,60,0.12); }
+
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 10px;
+        margin-bottom: 10px;
+      }
+      .panel > .label {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: var(--muted);
+        margin-bottom: 8px;
+      }
+
+      /* --- ability scores --- */
+      .abilities {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 6px;
+      }
+      .ability {
+        background: var(--panel-2);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        text-align: center;
+        padding: 6px 2px 4px;
+      }
+      .ability .name {
+        font-size: 9px; letter-spacing: 0.5px; color: var(--muted);
+        text-transform: uppercase;
+      }
+      .ability .mod {
+        font-size: 18px; font-weight: 700; color: var(--gold); line-height: 1.2;
+      }
+      .ability input {
+        width: 100%; border: none; background: transparent; color: var(--muted);
+        text-align: center; font-size: 11px; padding: 2px 0 0;
+      }
+
+      /* --- combat stats row --- */
+      .combat {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+        text-align: center;
+      }
+      .stat .name {
+        font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted);
+      }
+      .stat input, .stat .val {
+        width: 100%; border: none; background: var(--panel-2);
+        border: 1px solid var(--line); border-radius: 8px;
+        color: var(--text); text-align: center; font-size: 17px; font-weight: 700;
+        padding: 5px 0; margin-top: 3px;
+      }
+      .stat .val { color: var(--gold); }
+
+      /* --- HP --- */
+      .hp-top { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; }
+      .hp-top .cur { font-size: 26px; font-weight: 800; }
+      .hp-top .max { font-size: 14px; color: var(--muted); }
+      .hp-top .temp { margin-left: auto; font-size: 12px; color: var(--blue); }
+      .hpbar {
+        height: 12px; border-radius: 999px; background: #3a1f1f; overflow: hidden;
+        border: 1px solid var(--line);
+      }
+      .hpfill {
+        height: 100%; width: 50%;
+        background: linear-gradient(90deg, #c0392b, #e74c3c);
+        transition: width 0.25s ease;
+      }
+      .hp-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; }
+      .field { display: flex; flex-direction: column; gap: 2px; }
+      .field label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); }
+      .field input {
+        background: var(--panel-2); border: 1px solid var(--line); border-radius: 6px;
+        color: var(--text); padding: 5px 6px; font-size: 13px;
+      }
+
+      .dmg-row { display: grid; grid-template-columns: 1fr auto auto; gap: 6px; margin-top: 8px; }
+      .dmg-row input {
+        background: var(--panel-2); border: 1px solid var(--line); border-radius: 6px;
+        color: var(--text); padding: 6px 8px; font-size: 14px; text-align: center;
       }
       button {
-        font-size: 15px;
-        font-weight: 600;
-        padding: 10px 18px;
-        border: none;
-        border-radius: 8px;
-        background: #6c63ff;
-        color: white;
-        cursor: pointer;
-        transition: background 0.15s ease;
+        font-family: inherit; font-size: 13px; font-weight: 600;
+        border: 1px solid var(--line); border-radius: 6px;
+        background: var(--panel-2); color: var(--text);
+        padding: 7px 12px; cursor: pointer; transition: filter 0.12s ease, background 0.12s ease;
       }
-      button:hover {
-        background: #574fd6;
+      button:hover { filter: brightness(1.15); }
+      button:active { transform: translateY(1px); }
+      .btn-dmg { background: var(--red); border-color: var(--red); color: #fff; }
+      .btn-heal { background: var(--green); border-color: var(--green); color: #08210e; }
+
+      /* --- death saves --- */
+      #death { display: none; }
+      #death.show { display: block; }
+      .ds-line { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+      .ds-line .tag { width: 58px; font-size: 11px; color: var(--muted); }
+      .pips { display: flex; gap: 5px; }
+      .pip { width: 15px; height: 15px; border-radius: 50%; border: 2px solid var(--line); }
+      .pip.on-succ { background: var(--green); border-color: var(--green); }
+      .pip.on-fail { background: var(--red); border-color: var(--red); }
+      .ds-buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-top: 8px; }
+      .ds-buttons button { padding: 6px 0; font-size: 12px; }
+
+      /* --- exhaustion --- */
+      .exh-row { display: flex; align-items: center; gap: 8px; }
+      .exh-pips { display: flex; gap: 4px; flex: 1; }
+      .exh-pip { flex: 1; height: 8px; border-radius: 4px; background: var(--panel-2); border: 1px solid var(--line); }
+      .exh-pip.on { background: var(--gold); border-color: var(--gold); }
+      .exh-pip.death { background: var(--red); border-color: var(--red); }
+      .exh-btn { width: 28px; height: 28px; padding: 0; font-size: 16px; line-height: 1; }
+      .exh-effect { font-size: 11px; color: var(--muted); margin-top: 7px; min-height: 14px; }
+
+      #revive { display: none; width: 100%; margin-top: 6px; }
+      #revive.show { display: block; }
+
+      /* --- always-visible top bar --- */
+      #topbar { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+      #topbar .brand {
+        font-size: 12px; font-weight: 700; letter-spacing: 0.5px; color: var(--red);
       }
-      button:active {
-        transform: translateY(1px);
+      .spacer { flex: 1; }
+      button.ghost {
+        background: transparent; border: 1px solid var(--line);
+        color: var(--muted); padding: 5px 9px; font-size: 11px;
       }
-      button.secondary {
-        background: #2c2c34;
+      button.ghost:hover { color: var(--text); }
+
+      /* --- rules panel (overlay) --- */
+      #rules-panel {
+        position: fixed; inset: 0; z-index: 50;
+        background: var(--bg); padding: 12px; overflow-y: auto;
       }
-      button.secondary:hover {
-        background: #3a3a44;
+      #rules-panel.hidden { display: none; }
+      .rules-head {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-bottom: 8px;
       }
+      .rules-head h3 { color: var(--gold); font-size: 15px; }
+      .rules-note {
+        font-size: 11px; color: var(--muted); margin-bottom: 10px;
+        padding: 7px 9px; border: 1px dashed var(--line); border-radius: 8px;
+      }
+      .rule-row { padding: 10px 0; border-top: 1px solid var(--line); }
+      .rule-row:first-child { border-top: none; }
+      .rule-row .r-head { display: flex; align-items: center; gap: 8px; }
+      .rule-row .r-title { font-weight: 600; flex: 1; }
+      .rule-row .r-desc { font-size: 11px; color: var(--muted); margin-top: 4px; }
+      .rule-row input[type="number"] {
+        width: 52px; background: var(--panel-2); border: 1px solid var(--line);
+        border-radius: 6px; color: var(--text); text-align: center; padding: 4px;
+      }
+      .rules-foot { font-size: 10px; color: var(--muted); margin-top: 14px; text-align: center; }
+
+      /* toggle switch */
+      .switch { position: relative; width: 40px; height: 22px; flex: none; }
+      .switch input { opacity: 0; width: 0; height: 0; }
+      .switch .track {
+        position: absolute; inset: 0; border-radius: 999px;
+        background: var(--panel-2); border: 1px solid var(--line); transition: 0.15s;
+      }
+      .switch .track::before {
+        content: ""; position: absolute; width: 16px; height: 16px; left: 2px; top: 2px;
+        border-radius: 50%; background: var(--muted); transition: 0.15s;
+      }
+      .switch input:checked + .track { background: rgba(84,180,106,0.3); border-color: var(--green); }
+      .switch input:checked + .track::before { transform: translateX(18px); background: var(--green); }
+      .switch input:disabled + .track { opacity: 0.5; }
+
+      /* --- fleeting luck (room-wide, always visible) --- */
+      .luck-bar {
+        display: flex; align-items: center; gap: 8px;
+        background: linear-gradient(90deg, rgba(217,178,95,0.18), rgba(155,89,182,0.18));
+        border: 1px solid var(--gold);
+        border-radius: var(--radius);
+        padding: 8px 10px; margin-bottom: 10px;
+      }
+      .luck-bar .luck-title {
+        font-size: 11px; font-weight: 700; letter-spacing: 0.4px;
+        color: var(--gold); white-space: nowrap;
+      }
+      .luck-bar .luck-count {
+        font-size: 20px; font-weight: 800; color: var(--gold);
+        min-width: 24px; text-align: center;
+      }
+      .luck-bar .spacer { flex: 1; }
+      .luck-bar button { padding: 5px 9px; font-size: 11px; }
+      .luck-bar .luck-wipe { background: #3a1f1f; border-color: var(--red); color: var(--red); }
+      .luck-bar button:disabled { opacity: 0.4; cursor: not-allowed; filter: none; }
+
+      /* --- footer / graffiti --- */
+      footer { margin-top: 4px; }
+      #draw-graffiti { width: 100%; background: #2c2c34; }
+
+      .hint { font-size: 10px; color: var(--muted); text-align: center; margin-top: 6px; }
     </style>
   </head>
   <body>
-    <button id="say-hello">👋 Say Hello to the Room</button>
-    <button id="draw-graffiti" class="secondary">🎨 Tag the Map</button>
+    <!-- Always-visible top bar -->
+    <div id="topbar">
+      <span class="brand">☠ Hardcore 5e</span>
+      <span class="spacer"></span>
+      <button id="open-rules" class="ghost">📖 Rules</button>
+    </div>
+
+    <!-- Fleeting Luck (room-wide) -->
+    <div id="luck" class="luck-bar">
+      <span class="luck-title">✦ Fleeting Luck</span>
+      <span class="luck-count" id="luck-count">0</span>
+      <span class="spacer"></span>
+      <button id="luck-gain">＋ Nat 20</button>
+      <button id="luck-spend">Spend</button>
+      <button class="luck-wipe" id="luck-wipe">Nat 1</button>
+    </div>
+
+    <!-- Empty state -->
+    <div id="empty">
+      <div class="big">🎲</div>
+      <div><strong>Select a token</strong></div>
+      <div>Click a character token on the map to view and edit its hardcore 5e sheet.</div>
+    </div>
+
+    <!-- The sheet -->
+    <div id="sheet" class="hidden">
+      <header>
+        <div id="token-name">Token</div>
+        <div id="status-pill" class="st-alive">Alive</div>
+      </header>
+
+      <!-- Ability scores -->
+      <div class="panel">
+        <div class="label">Ability Scores</div>
+        <div class="abilities" id="abilities"></div>
+      </div>
+
+      <!-- Combat stats -->
+      <div class="panel">
+        <div class="label">Combat</div>
+        <div class="combat">
+          <div class="stat"><div class="name">AC</div><input id="ac" type="number" /></div>
+          <div class="stat"><div class="name">Init</div><div class="val" id="init">+0</div></div>
+          <div class="stat"><div class="name">Speed</div><input id="speed" type="number" /></div>
+          <div class="stat"><div class="name">Prof</div><input id="prof" type="number" /></div>
+        </div>
+      </div>
+
+      <!-- Hit points -->
+      <div class="panel">
+        <div class="label">Hit Points</div>
+        <div class="hp-top">
+          <span class="cur" id="hp-cur">10</span>
+          <span class="max" id="hp-max-label">/ 10</span>
+          <span class="temp" id="hp-temp-label"></span>
+        </div>
+        <div class="hpbar"><div class="hpfill" id="hp-fill"></div></div>
+        <div class="hp-inputs">
+          <div class="field"><label>Max HP</label><input id="hp-max" type="number" /></div>
+          <div class="field"><label>Temp HP</label><input id="hp-temp" type="number" /></div>
+        </div>
+        <div class="dmg-row">
+          <input id="dmg-amt" type="number" min="0" placeholder="amount" />
+          <button class="btn-dmg" id="btn-damage">– Damage</button>
+          <button class="btn-heal" id="btn-heal">+ Heal</button>
+        </div>
+      </div>
+
+      <!-- Death saves (auto-shown at 0 HP) -->
+      <div class="panel" id="death">
+        <div class="label">Death Saves</div>
+        <div class="ds-line"><span class="tag">Success</span><div class="pips" id="succ-pips"></div></div>
+        <div class="ds-line"><span class="tag">Failure</span><div class="pips" id="fail-pips"></div></div>
+        <div class="ds-buttons">
+          <button id="ds-success">✓ Save</button>
+          <button id="ds-fail">✗ Fail</button>
+          <button id="ds-nat20">Nat 20</button>
+          <button id="ds-nat1">Nat 1</button>
+        </div>
+      </div>
+
+      <!-- Exhaustion -->
+      <div class="panel">
+        <div class="label">Exhaustion</div>
+        <div class="exh-row">
+          <button class="exh-btn" id="exh-minus">−</button>
+          <div class="exh-pips" id="exh-pips"></div>
+          <button class="exh-btn" id="exh-plus">+</button>
+        </div>
+        <div class="exh-effect" id="exh-effect"></div>
+      </div>
+
+      <button id="revive">⚰️ GM Override: Revive (1 HP)</button>
+
+      <footer>
+        <button id="draw-graffiti">🎨 Tag the Map</button>
+        <div class="hint">Hardcore rules: massive damage & exhaustion 6 are instant death; death is permanent.</div>
+      </footer>
+    </div>
+
+    <!-- Rules panel (overlay) -->
+    <div id="rules-panel" class="hidden">
+      <div class="rules-head">
+        <h3>☠ Hardcore Rules</h3>
+        <button id="close-rules" class="ghost">✕</button>
+      </div>
+      <div id="rules-note" class="rules-note"></div>
+      <div id="rules-list"></div>
+      <div class="rules-foot">
+        These rules apply to the whole table and are shared with every player.
+      </div>
+    </div>
+
     <script type="module" src="main.js"></script>
   </body>
 </html>
