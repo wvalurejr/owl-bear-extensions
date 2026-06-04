@@ -1,8 +1,12 @@
 # Hello World — Owlbear Rodeo Extension
 
-A minimal [Owlbear Rodeo](https://www.owlbear.rodeo/) extension. It adds a
-toolbar button; clicking it broadcasts a "Hello World" notification to everyone
-in the room.
+A minimal [Owlbear Rodeo](https://www.owlbear.rodeo/) extension with two buttons:
+
+- **👋 Say Hello to the Room** — broadcasts a "Hello World" notification to
+  everyone in the room.
+- **🎨 Tag the Map** — draws a little graffiti doodle as a scene item at a random
+  spot near the centre of your current view. Because it's a normal scene item it
+  syncs to every player automatically, and the GM can delete it like any drawing.
 
 ## Files
 

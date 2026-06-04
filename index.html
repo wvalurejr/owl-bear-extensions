@@ -13,7 +13,9 @@
         margin: 0;
         padding: 16px;
         display: flex;
-        align-items: center;
+        flex-direction: column;
+        gap: 10px;
+        align-items: stretch;
         justify-content: center;
         background: transparent;
         color: #f0f0f0;
@@ -35,10 +37,17 @@
       button:active {
         transform: translateY(1px);
       }
+      button.secondary {
+        background: #2c2c34;
+      }
+      button.secondary:hover {
+        background: #3a3a44;
+      }
     </style>
   </head>
   <body>
     <button id="say-hello">👋 Say Hello to the Room</button>
+    <button id="draw-graffiti" class="secondary">🎨 Tag the Map</button>
     <script type="module" src="main.js"></script>
   </body>
 </html>
