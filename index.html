@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hello World</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: system-ui, -apple-system, sans-serif;
+      }
+      body {
+        margin: 0;
+        padding: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        color: #f0f0f0;
+      }
+      button {
+        font-size: 15px;
+        font-weight: 600;
+        padding: 10px 18px;
+        border: none;
+        border-radius: 8px;
+        background: #6c63ff;
+        color: white;
+        cursor: pointer;
+        transition: background 0.15s ease;
+      }
+      button:hover {
+        background: #574fd6;
+      }
+      button:active {
+        transform: translateY(1px);
+      }
+    </style>
+  </head>
+  <body>
+    <button id="say-hello">👋 Say Hello to the Room</button>
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>
