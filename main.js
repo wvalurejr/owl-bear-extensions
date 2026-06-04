@@ -109,12 +109,20 @@ const signed = (n) => (n >= 0 ? `+${n}` : `${n}`);
 
 // ---- Boot ------------------------------------------------------------------
 
-OBR.onReady(async () => {
-  buildAbilityInputs();
-  buildExhaustionPips();
-  buildRulesPanel();
-  bindEvents();
+// Build the static UI and wire buttons immediately. This runs even when the
+// page is opened directly in a browser (outside Owlbear), so the layout and the
+// Rules panel can be previewed — though OBR-backed features stay inert until the
+// SDK connects. (This module is deferred, so the DOM is ready here.)
+buildAbilityInputs();
+buildExhaustionPips();
+buildRulesPanel();
+renderRulesPanel();
+renderLuck();
+bindEvents();
 
+// Everything that actually talks to Owlbear waits for the SDK handshake, which
+// only happens when the page is loaded as an extension inside Owlbear.
+OBR.onReady(async () => {
   myName = await OBR.player.getName().catch(() => "Someone");
   myRole = await OBR.player.getRole().catch(() => "PLAYER");
 
