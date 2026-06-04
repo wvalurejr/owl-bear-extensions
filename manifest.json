@@ -4,11 +4,11 @@
   "manifest_version": 1,
   "author": "wvalurejr",
   "description": "Sends a hello world notification to everyone in the room.",
-  "icon": "icon.svg",
+  "icon": "https://wvalurejr.github.io/owl-bear-extensions/icon.svg",
   "action": {
     "title": "Hello World",
-    "icon": "icon.svg",
-    "popover": "index.html",
+    "icon": "https://wvalurejr.github.io/owl-bear-extensions/icon.svg",
+    "popover": "https://wvalurejr.github.io/owl-bear-extensions/index.html",
     "width": 320,
     "height": 140
   }

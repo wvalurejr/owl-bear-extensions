@@ -47,10 +47,19 @@ To share it with your group for real, deploy the folder to any static host
 (GitHub Pages, Netlify, Vercel, Cloudflare Pages) and use that public
 `manifest.json` URL instead.
 
-All internal references (`manifest.json` → `index.html`/`icon.svg`,
-`index.html` → `main.js`) use **relative** paths, so the extension works
-whether it's served from a domain root (Netlify/Vercel/Cloudflare) or a
-subpath (GitHub Pages project site, e.g. `user.github.io/repo/`).
+### A note on manifest paths
+
+Owlbear resolves the `icon` and `popover` paths in `manifest.json` against the
+**domain root**, *not* the manifest's own folder. On a host that serves your
+files at the root that's fine, but on a GitHub Pages **project site**
+(`user.github.io/repo/...`) a bare path like `index.html` resolves to
+`user.github.io/index.html` — the wrong place — so the popover fails to load
+and the icon goes missing.
+
+To avoid any ambiguity, `manifest.json` uses **full absolute URLs** for `icon`
+and `popover`. (The `main.js` reference inside `index.html` stays relative — the
+browser resolves that one against the loaded page, which works correctly.)
+If you fork this to a different repo/host, update those two URLs to match.
 
 ### Deploying to GitHub Pages
 
