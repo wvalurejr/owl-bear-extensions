@@ -4,11 +4,11 @@
   "manifest_version": 1,
   "author": "wvalurejr",
   "description": "Sends a hello world notification to everyone in the room.",
-  "icon": "/icon.svg",
+  "icon": "icon.svg",
   "action": {
     "title": "Hello World",
-    "icon": "/icon.svg",
-    "popover": "/index.html",
+    "icon": "icon.svg",
+    "popover": "index.html",
     "width": 320,
     "height": 140
   }

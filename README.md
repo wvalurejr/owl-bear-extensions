@@ -46,3 +46,25 @@ URL to `manifest.json` (e.g. `http://localhost:8080/manifest.json`).
 To share it with your group for real, deploy the folder to any static host
 (GitHub Pages, Netlify, Vercel, Cloudflare Pages) and use that public
 `manifest.json` URL instead.
+
+All internal references (`manifest.json` → `index.html`/`icon.svg`,
+`index.html` → `main.js`) use **relative** paths, so the extension works
+whether it's served from a domain root (Netlify/Vercel/Cloudflare) or a
+subpath (GitHub Pages project site, e.g. `user.github.io/repo/`).
+
+### Deploying to GitHub Pages
+
+```sh
+# from this folder
+git init && git add . && git commit -m "Hello World OBR extension"
+gh repo create hello-world-obr --public --source=. --push
+```
+
+Then enable Pages: repo **Settings → Pages → Branch: `main` / root**. After it
+builds, your manifest URL is:
+
+```
+https://<user>.github.io/hello-world-obr/manifest.json
+```
+
+Paste that into Owlbear Rodeo's **Add Extension** dialog.
