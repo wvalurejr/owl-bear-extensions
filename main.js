@@ -442,8 +442,16 @@ function renderLuck() {
 
 async function setLuck(count, type) {
   count = Math.max(0, count);
+  // Update locally first so the count moves instantly (and so it still responds
+  // when previewing the page outside Owlbear). The room broadcast confirms it.
+  luck = { count };
+  renderLuck();
   const event = { type, by: myName, t: Date.now() };
-  await OBR.room.setMetadata({ [LUCK_KEY]: { count, event } });
+  try {
+    await OBR.room.setMetadata({ [LUCK_KEY]: { count, event } });
+  } catch (e) {
+    console.warn("Fleeting Luck save failed (running outside Owlbear?)", e);
+  }
 }
 
 function gainLuck() {
